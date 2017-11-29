@@ -1,0 +1,28 @@
+#!/bin/bash
+
+rm -f result
+
+prog=MST.exe
+max=10
+corr=0
+
+for i in `seq 1 $max`; do
+    rm -f tempresult
+    ./$prog < ./testfiles/t$i >> tempresult
+    diff tempresult ./testfiles/o$i >> tempcnt
+    if [ -s tempcnt ] ; then
+      echo "test $i: fail"
+      echo "test $i: fail" >> result
+    else
+      echo "test $i: success"
+      echo "test $i: success" >> result
+      ((corr=corr+1))
+    fi;
+done
+
+echo "score: $corr";
+echo $(whoami) "score: ${corr}" >> result
+
+rm -f tempresult
+rm -f tempcnt
+
