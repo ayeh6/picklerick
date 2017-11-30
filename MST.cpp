@@ -5,9 +5,16 @@ using namespace std;
 
 struct AdjListNode
 {
-	int destination;
+	int dest;
 	int weight;
 	struct AdjListNode* next;
+
+	AdjListNode(int dest, int weight)
+	{
+		this->dest = dest;
+		this->weight = weight;
+		this->next = NULL;
+	}
 };
 
 struct AdjList
@@ -15,38 +22,28 @@ struct AdjList
 	struct AdjListNode *head;
 };
 
-struct AdjListNode* newAdjListNode(int destination, int weight)
-{
-    struct AdjListNode* newNode = (struct AdjListNode*) malloc (sizeof(struct AdjListNode));
-    newNode->destination = destination;
-    newNode->weight = weight;
-    newNode->next = NULL;
-    return newNode;
-}
-
 struct Graph
 {
 	int V;
 	struct AdjList* array;
-};
 
-struct Graph* newGraph(int V)
-{
-	struct Graph* graph = (struct Graph*) malloc (sizeof(struct Graph));
-	graph->V = V;
-	graph->array = (struct AdjList*) malloc (V * sizeof(struct AdjList));
-	for(int i = 0; i < V; i++) {
-		graph->array[i].head = NULL;
+	Graph(int V)
+	{
+		this->V = V;
+		this->array = (struct AdjList*) malloc (V * sizeof(struct AdjList));
+		for(int i = 0; i < V; i++)
+		{
+			this->array[i].head = NULL;
+		}
 	}
-	return graph;
-}
+};
 
 void addEdge(struct Graph* graph, int source, int destination, int weight)
 {
-	struct AdjListNode* newNode = newAdjListNode(destination, weight);
+	AdjListNode* newNode = new AdjListNode(destination, weight);
 	newNode->next = graph->array[source].head;
 	graph->array[source].head = newNode;
-	newNode = newAdjListNode(source, weight);
+	newNode = new AdjListNode(source, weight);
 	newNode->next = graph->array[destination].head;
 	graph->array[destination].head = newNode;
 }
@@ -55,6 +52,12 @@ struct MinHeapNode
 {
 	int v;
 	int key;
+
+	MinHeapNode(int v, int key)
+	{
+		this->v = v;
+		this->key = key;
+	}
 };
 
 struct MinHeap
@@ -63,25 +66,15 @@ struct MinHeap
 	int capacity;
 	int *position;
 	struct MinHeapNode **array;
+
+	MinHeap(int capacity)
+	{
+		this->position = (int *)malloc(capacity * sizeof(int));
+		this->size = 0;
+		this->capacity = capacity;
+		this->array = (struct MinHeapNode**)malloc(capacity * sizeof(struct MinHeapNode*));
+	}
 };
-
-struct MinHeapNode* newMinHeapNode(int v, int key)
-{
-	struct MinHeapNode* minHeapNode = (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
-	minHeapNode->v = v;
-	minHeapNode->key = key;
-	return minHeapNode;
-}
-
-struct MinHeap* createMinHeap(int capacity)
-{
-	struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
-	minHeap->position = (int *)malloc(capacity * sizeof(int));
-	minHeap->size = 0;
-	minHeap->capacity = capacity;
-	minHeap->array = (struct MinHeapNode**)malloc(capacity * sizeof(struct MinHeapNode*));
-	return minHeap;
-}
 
 void swap(struct MinHeapNode** x, struct MinHeapNode** y)
 {
@@ -113,8 +106,8 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
 	if(minHeap->size == 0) {
 		return NULL;
 	}
-	struct MinHeapNode* root = minHeap->array[0]; // Store the root node
-	struct MinHeapNode* lastNode = minHeap->array[minHeap->size - 1];
+	MinHeapNode* root = minHeap->array[0]; // Store the root node
+	MinHeapNode* lastNode = minHeap->array[minHeap->size - 1];
 	minHeap->array[0] = lastNode;
 	minHeap->position[root->v] = minHeap->size-1;
 	minHeap->position[lastNode->v] = 0;
@@ -126,7 +119,8 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
 void decreaseKey(struct MinHeap* minHeap, int v, int key) {
 	int i = minHeap->position[v];
 	minHeap->array[i]->key = key;
-	while((minHeap->array[(i - 1) / 2]->key) > (minHeap->array[i]->key)) {
+	while((minHeap->array[(i - 1) / 2]->key) > (minHeap->array[i]->key))
+	{
 		minHeap->position[minHeap->array[i]->v] = (i-1)/2;
 		minHeap->position[minHeap->array[(i-1)/2]->v] = i;
 		swap(&minHeap->array[i],  &minHeap->array[(i - 1) / 2]);
@@ -136,24 +130,26 @@ void decreaseKey(struct MinHeap* minHeap, int v, int key) {
 
 void Prim_Algorithm(struct Graph* graph) {
 	int i, V = graph->V, parent_arr[V], key[V];
- 	struct MinHeap* minHeap = createMinHeap(V);
+ 	MinHeap* minHeap = new MinHeap(V);
 	for(i = 1; i < V; i++) {
 		parent_arr[i] = -1;
         	key[i] = INT_MAX;
-		minHeap->array[i] = newMinHeapNode(i, key[i]);
+		minHeap->array[i] = new MinHeapNode(i, key[i]);
 		minHeap->position[i] = i;
 	}
 	key[0] = 0;
-	minHeap->array[0] = newMinHeapNode(0, key[0]);
+	minHeap->array[0] = new MinHeapNode(0, key[0]);
 	minHeap->position[0] = 0;
 	minHeap->size = V;
 	while(!(minHeap->size == 0)) {
-		struct MinHeapNode* minHeapNode = extractMin(minHeap);
+		MinHeapNode* minHeapNode = extractMin(minHeap);
 		int u = minHeapNode->v;
-		struct AdjListNode* temp_arr = graph->array[u].head;
-		while (temp_arr != NULL) {
-			int v = temp_arr->destination;
-			if((minHeap->position[v] < minHeap->size) && (temp_arr->weight < key[v])) {
+		AdjListNode* temp_arr = graph->array[u].head;
+		while (temp_arr != NULL)
+		{
+			int v = temp_arr->dest;
+			if((minHeap->position[v] < minHeap->size) && (temp_arr->weight < key[v]))
+			{
 				key[v] = temp_arr->weight;
 				parent_arr[v] = u;
 				decreaseKey(minHeap, v, key[v]);
@@ -169,7 +165,7 @@ void Prim_Algorithm(struct Graph* graph) {
 int main() {
 	int i, numVertices, numEdges, u, v, weight;
 	cin >> numVertices;
-	struct Graph* graph = newGraph(numVertices);
+	Graph* graph = new Graph(numVertices);
 	cin >> numEdges;
 	for(i = 0; i < numEdges; i++) {
 		cin >> u >> v >> weight;
