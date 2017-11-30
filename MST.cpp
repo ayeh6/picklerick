@@ -3,13 +3,13 @@
 #include <stdlib.h>
 using namespace std;
 
-struct AdjListNode
+struct Node
 {
 	int dest;
 	int weight;
-	struct AdjListNode* next;
+	struct Node* next;
 
-	AdjListNode(int dest, int weight)
+	Node(int dest, int weight)
 	{
 		this->dest = dest;
 		this->weight = weight;
@@ -17,20 +17,20 @@ struct AdjListNode
 	}
 };
 
-struct AdjList
+struct List
 {
-	struct AdjListNode *head;
+	struct ListNode *head;
 };
 
 struct Graph
 {
 	int V;
-	struct AdjList* array;
+	struct List* array;
 
 	Graph(int V)
 	{
 		this->V = V;
-		this->array = (struct AdjList*) malloc (V * sizeof(struct AdjList));
+		this->array = (struct List*) malloc (V * sizeof(struct List));
 		for(int i = 0; i < V; i++)
 		{
 			this->array[i].head = NULL;
@@ -40,10 +40,10 @@ struct Graph
 
 void addEdge(struct Graph* graph, int source, int destination, int weight)
 {
-	AdjListNode* newNode = new AdjListNode(destination, weight);
+	Node* newNode = new Node(destination, weight);
 	newNode->next = graph->array[source].head;
 	graph->array[source].head = newNode;
-	newNode = new AdjListNode(source, weight);
+	newNode = new Node(source, weight);
 	newNode->next = graph->array[destination].head;
 	graph->array[destination].head = newNode;
 }
