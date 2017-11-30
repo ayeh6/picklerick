@@ -19,7 +19,7 @@ struct Node
 
 struct List
 {
-	struct ListNode *head;
+	struct Node *head;
 };
 
 struct Graph
@@ -89,10 +89,12 @@ void minHeapify(struct MinHeap* minHeap, int index)
 	if((right < minHeap->size) && (minHeap->array[right]->key < minHeap->array[minNode]->key)) {
 		minNode = right;
 	}
-	if((left < minHeap->size) && (minHeap->array[left]->key < minHeap->array[minNode]->key)) {
+	if((left < minHeap->size) && (minHeap->array[left]->key < minHeap->array[minNode]->key))
+	{
 		minNode = left;
-		}
-	if(minNode != index) {
+	}
+	if(minNode != index)
+	{
 		MinHeapNode *smallestNode = minHeap->array[minNode];
 		MinHeapNode *idxNode = minHeap->array[index];
 		minHeap->position[smallestNode->v] = index;
@@ -102,8 +104,10 @@ void minHeapify(struct MinHeap* minHeap, int index)
 	}
 }
 
-struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
-	if(minHeap->size == 0) {
+struct MinHeapNode* extractMin(struct MinHeap* minHeap)
+{
+	if(minHeap->size == 0)
+	{
 		return NULL;
 	}
 	MinHeapNode* root = minHeap->array[0]; // Store the root node
@@ -116,7 +120,8 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
 	return root;
 }
 
-void decreaseKey(struct MinHeap* minHeap, int v, int key) {
+void DecreaseKey(struct MinHeap* minHeap, int v, int key)
+{
 	int i = minHeap->position[v];
 	minHeap->array[i]->key = key;
 	while((minHeap->array[(i - 1) / 2]->key) > (minHeap->array[i]->key))
@@ -128,49 +133,61 @@ void decreaseKey(struct MinHeap* minHeap, int v, int key) {
 	}
 }
 
-void Prim_Algorithm(struct Graph* graph) {
-	int i, V = graph->V, parent_arr[V], key[V];
+void Prims(struct Graph* graph)
+{
+	int V = graph->V;
+	int parents[V], key[V];
  	MinHeap* minHeap = new MinHeap(V);
-	for(i = 1; i < V; i++) {
-		parent_arr[i] = -1;
+
+	for(int i = 0; i < V; i++)
+	{
+		parents[i] = -1;
         	key[i] = INT_MAX;
 		minHeap->array[i] = new MinHeapNode(i, key[i]);
 		minHeap->position[i] = i;
 	}
+
 	key[0] = 0;
 	minHeap->array[0] = new MinHeapNode(0, key[0]);
 	minHeap->position[0] = 0;
 	minHeap->size = V;
-	while(!(minHeap->size == 0)) {
+
+	while(!(minHeap->size == 0))
+	{
 		MinHeapNode* minHeapNode = extractMin(minHeap);
 		int u = minHeapNode->v;
-		AdjListNode* temp_arr = graph->array[u].head;
-		while (temp_arr != NULL)
+		Node* tempArray = graph->array[u].head;
+		while (tempArray != NULL)
 		{
-			int v = temp_arr->dest;
-			if((minHeap->position[v] < minHeap->size) && (temp_arr->weight < key[v]))
+			int v = tempArray->dest;
+			if((minHeap->position[v] < minHeap->size) && (tempArray->weight < key[v]))
 			{
-				key[v] = temp_arr->weight;
-				parent_arr[v] = u;
-				decreaseKey(minHeap, v, key[v]);
+				key[v] = tempArray->weight;
+				parents[v] = u;
+				DecreaseKey(minHeap, v, key[v]);
 			}
-			temp_arr = temp_arr->next;
+			tempArray = tempArray->next;
 		}
 	}
-	for(i = 1; i < V; i++) {
-	cout << parent_arr[i] <<endl;
+
+	for(int i = 1; i < V; i++)
+	{
+		cout << parents[i] << endl;
 	}
 }
 
 int main() {
-	int i, numVertices, numEdges, u, v, weight;
-	cin >> numVertices;
-	Graph* graph = new Graph(numVertices);
-	cin >> numEdges;
-	for(i = 0; i < numEdges; i++) {
-		cin >> u >> v >> weight;
-		addEdge(graph, u, v, weight);
+	int verts, edges, v1, v2, weight;
+	cin >> verts;
+	Graph* graph = new Graph(verts);
+	cin >> edges;
+	for(int i = 0; i < edges; i++)
+	{
+		cin >> v1;
+		cin >> v2;
+		cin >> weight;
+		addEdge(graph, v1, v2, weight);
 	}
-	Prim_Algorithm(graph);
+	Prims(graph);
 	return 0;
 }
